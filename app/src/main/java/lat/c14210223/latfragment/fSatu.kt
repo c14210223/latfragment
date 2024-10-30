@@ -1,59 +1,89 @@
 package lat.c14210223.latfragment
 
 import android.os.Bundle
-import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Button
+import android.widget.TextView
+import androidx.fragment.app.Fragment
+import kotlin.random.Random
 
-// TODO: Rename parameter arguments, choose names that match
-// the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
-private const val ARG_PARAM1 = "param1"
-private const val ARG_PARAM2 = "param2"
-
-/**
- * A simple [Fragment] subclass.
- * Use the [fSatu.newInstance] factory method to
- * create an instance of this fragment.
- */
 class fSatu : Fragment() {
-    // TODO: Rename and change types of parameters
-    private var param1: String? = null
-    private var param2: String? = null
 
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        arguments?.let {
-            param1 = it.getString(ARG_PARAM1)
-            param2 = it.getString(ARG_PARAM2)
-        }
-    }
+    private lateinit var scoreTextView: TextView
+    private lateinit var buttons: List<Button>
+    private var angkaTebakan: Int = 0
+    private var score: Int = 50 // Modal awal
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        // Inflate the layout for this fragment
         return inflater.inflate(R.layout.fragment_f_satu, container, false)
     }
 
-    companion object {
-        /**
-         * Use this factory method to create a new instance of
-         * this fragment using the provided parameters.
-         *
-         * @param param1 Parameter 1.
-         * @param param2 Parameter 2.
-         * @return A new instance of fragment fSatu.
-         */
-        // TODO: Rename and change types and number of parameters
-        @JvmStatic
-        fun newInstance(param1: String, param2: String) =
-            fSatu().apply {
-                arguments = Bundle().apply {
-                    putString(ARG_PARAM1, param1)
-                    putString(ARG_PARAM2, param2)
-                }
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+
+        // Inisialisasi TextView dan Button
+        scoreTextView = view.findViewById(R.id.scoreTextView)
+        buttons = listOf(
+            view.findViewById(R.id.button1),
+            view.findViewById(R.id.button2),
+            view.findViewById(R.id.button3),
+            view.findViewById(R.id.button4),
+            view.findViewById(R.id.button5),
+            view.findViewById(R.id.button6),
+            view.findViewById(R.id.button7),
+            view.findViewById(R.id.button8),
+            view.findViewById(R.id.button9)
+        )
+
+        updateScore()
+
+        // Mulai permainan
+        startGame()
+        // Menambahkan listener pada setiap tombol
+        buttons.forEach { button ->
+            button.setOnClickListener {
+                val selectedNumber = button.text.toString().toInt()
+                checkAnswer(selectedNumber)
             }
+        }
+    }
+
+    // Fungsi angka Random
+    private fun startGame() {
+        angkaTebakan = Random.nextInt(1, 5) // Batas awal default 1-5
+        val angkaList = mutableListOf(angkaTebakan, angkaTebakan) // Angka muncul 2 kali
+
+        // Isi sisa list dengan angka acak lainnya
+        while (angkaList.size < 9) {
+            angkaList.add(Random.nextInt(1, 5))
+        }
+
+        angkaList.shuffle() // Mengacak urutan angka
+
+        // Menampilkan angka pada tombol
+        buttons.forEachIndexed { index, button ->
+            button.text = angkaList[index].toString()
+        }
+    }
+
+    // Fungsi untuk memeriksa jawaban
+    private fun checkAnswer(selectedNumber: Int) {
+        if (selectedNumber == angkaTebakan) {
+            score += 10
+        } else {
+            score -= 5
+        }
+        updateScore()
+        startGame() // Mengacak angka untuk ronde berikutnya
+    }
+
+    // Fungsi untuk memperbarui tampilan skor
+    private fun updateScore() {
+        scoreTextView.text = "Score: $score"
     }
 }
